@@ -103,7 +103,7 @@ def generate_review(analysis_results: Dict[str, Any], config: Dict[str, Any]) ->
     Returns:
         Tuple[str, str] containing:
             - review_body: The generated review summary in markdown format
-            - review_action: The suggested action ('approve' or 'request_changes')
+            - review_action: The suggested action ('APPROVE' or 'REQUEST_CHANGES')
             
     Raises:
         TypeError: If analysis_results is not a dictionary
@@ -117,7 +117,7 @@ def generate_review(analysis_results: Dict[str, Any], config: Dict[str, Any]) ->
     review_body = generate_summary_markdown(analysis_results, config)
     
     # Determine review action based on analysis results
-    review_action = 'approve' if analysis_results.get('passed', False) else 'request_changes'
+    review_action = 'APPROVE' if analysis_results.get('passed', False) else 'REQUEST_CHANGES'
     
     return review_body, review_action
 

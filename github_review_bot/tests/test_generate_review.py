@@ -65,7 +65,7 @@ def test_generate_review_interface(mock_config):
     review_body, review_action = result
     assert isinstance(review_body, str)
     assert isinstance(review_action, str)
-    assert review_action in ('approve', 'request_changes')
+    assert review_action in ('APPROVE', 'REQUEST_CHANGES')
 
 def test_generate_review_functionality(mock_config):
     """Test the actual functionality of generate_review."""
@@ -77,7 +77,7 @@ def test_generate_review_functionality(mock_config):
     }
     review_body, review_action = generate_review(passing_results, mock_config)
     assert "✅ All automated checks passed" in review_body
-    assert review_action == 'approve'
+    assert review_action == 'APPROVE'
     
     # Test failing case
     failing_results = {
@@ -87,4 +87,4 @@ def test_generate_review_functionality(mock_config):
     }
     review_body, review_action = generate_review(failing_results, mock_config)
     assert "⚠️ Some issues were found" in review_body
-    assert review_action == 'request_changes' 
+    assert review_action == 'REQUEST_CHANGES' 

@@ -1,0 +1,93 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ ---
+description: Unit Testing Standards
+globs: *.py
+---
+# Unit Testing Standards
+
+Standards for running unit tests in the project.
+
+<rule>
+name: unit_testing_process
+description: Ensures consistent process for running unit tests
+filters:
+  # Match Python files
+  - type: file_extension
+    pattern: "\\.py$"
+  # Match test files
+  - type: content
+    pattern: "test_.*\\.py$|.*_test\\.py$"
+
+actions:
+  - type: suggest
+    message: |
+      When running unit tests:
+
+      1. Create and activate virtual environment:
+         ```bash
+         # Create virtual environment using uv
+         uv venv
+
+         # Activate the virtual environment
+         source .venv/bin/activate
+         ```
+
+      2. Install package in development mode:
+         ```bash
+         # Install package using uv pip
+         uv pip install -e .
+         ```
+
+      3. Run tests:
+         ```bash
+         # Run all tests
+         pytest
+
+         # Run specific test file
+         pytest path/to/test_file.py
+
+         # Run with verbosity
+         pytest -v
+
+         # Run with coverage
+         pytest --cov=github_review_bot
+         ```
+
+      4. Common test commands:
+         ```bash
+         # Run tests in a specific directory
+         pytest tests/
+
+         # Run tests matching a pattern
+         pytest -k "test_pattern"
+
+         # Show test output
+         pytest -s
+
+         # Show extra test info
+         pytest -v
+         ```
+
+examples:
+  - input: |
+      # Bad: Running tests without virtual environment
+      pytest
+
+      # Bad: Using pip instead of uv pip
+      pip install -e .
+
+      # Good: Complete test setup
+      uv venv
+      source .venv/bin/activate
+      uv pip install -e .
+      pytest
+    output: "Correctly set up and run unit tests"
+
+metadata:
+  priority: high
+  version: 1.0
+</rule> 

@@ -1,0 +1,32 @@
+[project]
+name = "github-review-bot"
+version = "0.1.0"
+description = "Automated GitHub PR review bot"
+requires-python = ">=3.8"
+dependencies = [
+    "PyGithub==2.1.1",
+    "PyYAML==6.0.1",
+    "flake8==6.1.0",
+    "black==23.12.1",
+    "bandit==1.7.7",
+    "pytest==7.4.4",
+    "pytest-cov==4.1.0",
+    "mypy==1.8.0"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["github_review_bot"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true 

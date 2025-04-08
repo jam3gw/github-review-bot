@@ -1,1 +1,133 @@
- 
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ ---
+description: Codebase Search Standards
+globs: *.py
+---
+# Codebase Search Standards
+
+Standards for performing thorough codebase searches to ensure no files or dependencies are missed.
+
+<rule>
+name: thorough_codebase_search
+description: Ensures comprehensive codebase searches are performed when making changes
+filters:
+  # Match any Python files
+  - type: file_extension
+    pattern: "\\.py$"
+  # Match any file modification events
+  - type: event
+    pattern: "file_modify"
+
+actions:
+  - type: suggest
+    message: |
+      When performing codebase searches:
+
+      1. Always start with a complete directory listing:
+         ```python
+         # Bad: Only searching specific directories
+         search_files("src/")
+         
+         # Good: List all directories first
+         all_dirs = list_directories()
+         for dir in all_dirs:
+             search_files(dir)
+         ```
+
+      2. Use multiple search strategies:
+         ```python
+         # Bad: Only using one search method
+         grep_search("pattern")
+         
+         # Good: Combine multiple search methods
+         # - Semantic search for related concepts
+         semantic_search("concept")
+         # - Exact pattern matching for specific terms
+         grep_search("exact_pattern")
+         # - Import/export analysis
+         analyze_imports()
+         ```
+
+      3. Cross-reference search results:
+         ```python
+         # Bad: Taking search results at face value
+         files = search_files("pattern")
+         
+         # Good: Verify and cross-reference results
+         files = search_files("pattern")
+         imports = analyze_imports()
+         dependencies = find_dependencies()
+         # Cross-reference to ensure completeness
+         missing_files = find_missing_references(files, imports, dependencies)
+         ```
+
+      4. Document search scope and results:
+         ```python
+         # Bad: No documentation of search process
+         files = search_files("pattern")
+         
+         # Good: Document search process and results
+         """
+         Search Process:
+         1. Listed all directories in project
+         2. Searched for pattern in each directory
+         3. Analyzed imports and dependencies
+         4. Cross-referenced results
+         
+         Found files:
+         - file1.py
+         - file2.py
+         - ...
+         """
+         ```
+
+      5. Verify completeness:
+         ```python
+         # Bad: Assuming search is complete
+         files = search_files("pattern")
+         
+         # Good: Verify search completeness
+         files = search_files("pattern")
+         verify_completeness(files, [
+             "expected_file1.py",
+             "expected_file2.py",
+             # ...
+         ])
+         ```
+
+examples:
+  - input: |
+      # Bad: Incomplete search process
+      def find_files():
+          return search_files("src/")
+      
+      # Good: Thorough search process
+      def find_files():
+          # 1. List all directories
+          dirs = list_directories()
+          
+          # 2. Search each directory
+          files = []
+          for dir in dirs:
+              files.extend(search_files(dir))
+          
+          # 3. Analyze imports
+          imports = analyze_imports()
+          
+          # 4. Cross-reference
+          missing = find_missing_references(files, imports)
+          
+          # 5. Document results
+          log_search_results(files, imports, missing)
+          
+          return files
+    output: "Correctly implemented thorough codebase search"
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

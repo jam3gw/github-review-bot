@@ -1,37 +1,8 @@
 # GitHub Review Bot Configuration
-# Place this file in your repository's .github directory
-
-# Repository type determines which specialized checks to run
-# Options: default, ai_agent, api, frontend
-repo_type: default
-
-# Review strictness level
-# Options: low, medium, high
-review_strictness: medium
-
-# Enable/disable specific check categories
-enabled_checks:
-  code_style: true
+review_type: default
+strictness: medium
+checks:
+  style: true
   security: true
-  performance: true
-  test_coverage: true
-  documentation: true
-
-# AI-specific checks (only used when repo_type is ai_agent)
-ai_checks:
-  prompt_engineering: false
-  model_versioning: false
-  response_validation: false
-
-# API-specific checks (only used when repo_type is api)
-api_checks:
-  openapi_validation: false
-  error_handling: false
-  rate_limiting: false
-  authentication: false
-
-# Data privacy compliance checks
-data_privacy:
-  pii_scan: true
-  gdpr_compliance: true
-  ccpa_compliance: true 
+  tests: true
+  docs: true 

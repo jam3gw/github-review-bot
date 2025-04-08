@@ -1,70 +1,13 @@
-name: Code Review Bot
-
+name: Code Review
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened]
 
 jobs:
   review:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: read
-      checks: write
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: ${{ github.repository }}@main
         with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-
-      - name: Install dependencies and package
-        run: |
-          uv pip install -e .
-
-      - name: Load repository configuration
-        run: |
-          python -m github_review_bot.scripts.load_config
-        id: config
-
-      - name: Parse review preference
-        run: |
-          python -m github_review_bot.scripts.parse_review_preference
-        id: review_pref
-
-      - name: Run code analysis
-        run: |
-          python -m github_review_bot.scripts.run_analysis
-        id: analysis
-
-      - name: Generate review
-        run: |
-          python -m github_review_bot.scripts.generate_review
-        id: review
-
-      - name: Post review comments
-        if: steps.review_pref.outputs.review_type == 'bot+human'
-        run: |
-          python -m github_review_bot.scripts.post_comments
-
-      - name: Auto-approve PR
-        if: steps.review_pref.outputs.review_type == 'bot-only' && steps.analysis.outputs.all_checks_passed == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.pulls.createReview({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-              event: 'APPROVE',
-              body: 'All automated checks passed. PR approved by GitHub Review Bot.'
-            })
+          github-token: ${{ secrets.GITHUB_TOKEN }} 

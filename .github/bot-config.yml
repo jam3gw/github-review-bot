@@ -1,8 +1,37 @@
 # GitHub Review Bot Configuration
-review_type: default
-strictness: medium
-checks:
-  style: true
+
+# Required: Repository type
+type: default  # Options: default, ai_agent, api, frontend
+
+# Required: Review strictness level
+strictness: medium  # Options: low, medium, high
+
+# Optional: Custom rules
+rules:
+  # Enable/disable specific checks
+  code_style: true
   security: true
+  documentation: true
   tests: true
-  docs: true 
+  performance: true
+
+  # Custom thresholds
+  min_test_coverage: 80
+  max_file_size_kb: 100
+  max_complexity: 10
+
+# Optional: Language-specific settings
+python:
+  # Python-specific checks
+  use_black: true
+  use_flake8: true
+  use_bandit: true
+  ignore_errors:
+    - E501  # Line too long
+    - W503  # Line break before binary operator
+
+# Optional: Custom messages
+messages:
+  approval: "✅ All checks passed! Great work!"
+  request_changes: "⚠️ Please address the following issues:"
+  error: "❌ Critical issues found that must be fixed:" 

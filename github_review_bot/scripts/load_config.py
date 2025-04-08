@@ -91,4 +91,4 @@ def main():
     print(f"Review strictness: {config['review_strictness']}")
 
 if __name__ == "__main__":
-    main()
+    main() 

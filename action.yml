@@ -1,0 +1,23 @@
+name: 'GitHub Review Bot'
+description: 'Automated code review bot with support for Next.js and Vercel projects'
+author: 'jam3gw'
+
+inputs:
+  github-token:
+    description: 'GitHub token for authentication'
+    required: true
+  config-path:
+    description: 'Path to the bot configuration file'
+    required: false
+    default: '.github/bot-config.yml'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run Python script
+      shell: bash
+      run: |
+        python -m github_review_bot.main
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        CONFIG_PATH: ${{ inputs.config-path }} 

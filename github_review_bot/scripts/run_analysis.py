@@ -7,8 +7,9 @@ import os
 import sys
 import json
 import subprocess
+import yaml
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 # Import our new checkers
 from .check_nextjs import check_nextjs
@@ -177,6 +178,57 @@ def run_api_analysis():
     print("Running API-specific analysis...")
     # TODO: Implement API-specific checks
     return True
+
+def run_analysis(pr, config) -> Dict[str, Any]:
+    """
+    Main analysis function that runs all configured checks on a PR.
+    
+    Args:
+        pr: The GitHub pull request object
+        config: The bot configuration dictionary
+    
+    Returns:
+        Dict containing analysis results
+    """
+    print(f"Running analysis on PR #{pr.number}...")
+    results = {
+        'passed': True,
+        'issues': [],
+        'stats': {}
+    }
+    
+    # Run general code analysis based on file types
+    if config.get('rules', {}).get('code_style', True):
+        if any(f.endswith('.py') for f in os.listdir('.')):
+            py_passed = run_python_analysis()
+            results['passed'] &= py_passed
+            
+        if any(f.endswith(('.js', '.jsx', '.ts', '.tsx')) for f in os.listdir('.')):
+            js_passed = run_js_analysis()
+            results['passed'] &= js_passed
+    
+    # Run specialized analysis based on repo type
+    repo_type = config.get('type', 'default')
+    if repo_type == 'frontend':
+        frontend_passed = run_frontend_analysis()
+        results['passed'] &= frontend_passed
+    elif repo_type == 'ai_agent':
+        ai_passed = run_ai_analysis()
+        results['passed'] &= ai_passed
+    elif repo_type == 'api':
+        api_passed = run_api_analysis()
+        results['passed'] &= api_passed
+    
+    # Load and combine all results
+    for result_file in ['analysis_results.json', 'js_analysis_results.json', 
+                       'nextjs_analysis_results.json', 'vercel_analysis_results.json']:
+        if os.path.exists(result_file):
+            with open(result_file) as f:
+                file_results = json.load(f)
+                results['issues'].extend(file_results if isinstance(file_results, list) 
+                                      else [{'tool': k, 'output': v} for k, v in file_results.items()])
+    
+    return results
 
 def main():
     config = load_config()

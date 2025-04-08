@@ -12,6 +12,31 @@ from .scripts.generate_review import generate_review
 from .scripts.post_comments import post_comments
 import json
 
+def extract_pr_number() -> int:
+    """
+    Extract the pull request number from environment variables.
+    
+    Returns:
+        int: The pull request number
+        
+    Raises:
+        ValueError: If the PR number cannot be determined
+    """
+    # Try to get PR number from GitHub Actions environment
+    pr_number = os.getenv("GITHUB_EVENT_PULL_REQUEST_NUMBER")
+    if pr_number:
+        return int(pr_number)
+    
+    # Try to get PR number from GitHub event payload
+    event_path = os.getenv("GITHUB_EVENT_PATH")
+    if event_path and os.path.exists(event_path):
+        with open(event_path) as f:
+            event_data = json.load(f)
+            if "pull_request" in event_data and "number" in event_data["pull_request"]:
+                return int(event_data["pull_request"]["number"])
+    
+    raise ValueError("Could not determine PR number from environment variables")
+
 def main():
     """Main function that runs the review bot."""
     # Get environment variables

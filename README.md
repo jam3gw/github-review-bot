@@ -121,14 +121,40 @@ Add a `.github/PULL_REQUEST_TEMPLATE.md` file to your repository to specify revi
    cd github-review-bot
    ```
 
-2. Install dependencies:
+2. Install dependencies using uv:
    ```bash
-   pip install -r requirements.txt
+   pip install uv
+   uv venv
+   uv pip install -e .
    ```
+
+### Project Structure
+
+```
+github-review-bot/
+├── .github/
+│   └── workflows/
+│       └── code-review.yml
+├── github_review_bot/
+│   ├── __init__.py
+│   ├── ai_checks.py
+│   ├── api_checks.py
+│   ├── generate_review.py
+│   ├── load_config.py
+│   ├── parse_review_preference.py
+│   ├── post_comments.py
+│   ├── privacy_checks.py
+│   └── run_analysis.py
+├── tests/
+│   └── test_load_config.py
+├── pyproject.toml
+└── README.md
+```
 
 ### Running Tests
 
 ```bash
+uv pip install pytest
 pytest
 ```
 

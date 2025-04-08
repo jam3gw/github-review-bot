@@ -8,16 +8,21 @@ import sys
 import json
 import subprocess
 from pathlib import Path
+from typing import Dict, Any
 
-def load_config():
-    """Load the bot configuration."""
-    config_path = 'bot_config.json'
-    if not os.path.exists(config_path):
+# Import our new checkers
+from .check_nextjs import check_nextjs
+from .check_vercel import check_vercel
+
+def load_config() -> Dict[str, Any]:
+    """Load the bot configuration from .github/bot-config.yml."""
+    config_path = Path('.github/bot-config.yml')
+    if not config_path.exists():
         print("Error: Configuration file not found")
         sys.exit(1)
     
     with open(config_path, 'r') as f:
-        return json.load(f)
+        return yaml.safe_load(f)
 
 def run_python_analysis():
     """Run Python code analysis tools."""
@@ -117,6 +122,50 @@ def run_js_analysis():
     return all(r.returncode == 0 for r in [eslint_result, ts_result] 
               if isinstance(r, subprocess.CompletedProcess))
 
+def run_nextjs_analysis() -> bool:
+    """Run Next.js specific analysis."""
+    print("Running Next.js analysis...")
+    repo_path = os.getcwd()
+    issues = check_nextjs(repo_path)
+    
+    # Save results
+    with open('nextjs_analysis_results.json', 'w') as f:
+        json.dump(issues, f, indent=2)
+    
+    # Consider the check failed if there are any error-level issues
+    return not any(issue['type'] == 'error' for issue in issues)
+
+def run_vercel_analysis() -> bool:
+    """Run Vercel deployment analysis."""
+    print("Running Vercel deployment analysis...")
+    repo_path = os.getcwd()
+    issues = check_vercel(repo_path)
+    
+    # Save results
+    with open('vercel_analysis_results.json', 'w') as f:
+        json.dump(issues, f, indent=2)
+    
+    # Consider the check failed if there are any error-level issues
+    return not any(issue['type'] == 'error' for issue in issues)
+
+def run_frontend_analysis() -> bool:
+    """Run frontend-specific analysis."""
+    print("Running frontend analysis...")
+    all_checks_passed = True
+    
+    # Run Next.js checks if it's a Next.js project
+    if os.path.exists('next.config.js'):
+        all_checks_passed &= run_nextjs_analysis()
+    
+    # Run Vercel checks if it's a Vercel project
+    if os.path.exists('vercel.json') or os.path.exists('.vercel'):
+        all_checks_passed &= run_vercel_analysis()
+    
+    # Run general JS/TS analysis
+    all_checks_passed &= run_js_analysis()
+    
+    return all_checks_passed
+
 def run_ai_analysis():
     """Run AI-specific analysis."""
     print("Running AI-specific analysis...")
@@ -133,15 +182,20 @@ def main():
     config = load_config()
     all_checks_passed = True
     
-    # Run general code analysis
-    if config['enabled_checks']['code_style']:
-        all_checks_passed &= run_python_analysis()
-        all_checks_passed &= run_js_analysis()
+    # Run general code analysis based on file types
+    if config.get('rules', {}).get('code_style', True):
+        if any(f.endswith('.py') for f in os.listdir('.')):
+            all_checks_passed &= run_python_analysis()
+        if any(f.endswith(('.js', '.jsx', '.ts', '.tsx')) for f in os.listdir('.')):
+            all_checks_passed &= run_js_analysis()
     
     # Run specialized analysis based on repo type
-    if config['repo_type'] == 'ai_agent':
+    repo_type = config.get('type', 'default')
+    if repo_type == 'frontend':
+        all_checks_passed &= run_frontend_analysis()
+    elif repo_type == 'ai_agent':
         all_checks_passed &= run_ai_analysis()
-    elif config['repo_type'] == 'api':
+    elif repo_type == 'api':
         all_checks_passed &= run_api_analysis()
     
     # Set GitHub Actions output

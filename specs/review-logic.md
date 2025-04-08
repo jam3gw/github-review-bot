@@ -54,6 +54,24 @@ This document outlines how the GitHub Review Bot performs code reviews.
 - Prettier formatting
 - Build verification
 
+### Next.js Specific
+- App directory structure
+- Image optimization settings
+- Metadata configuration
+- SWC minification
+- Recommended dependencies
+- TypeScript configuration
+- Build settings
+
+### Vercel Specific
+- Deployment configuration
+- Environment variables
+- Build settings
+- Analytics integration
+- CLI setup
+- Deployment files
+- Performance optimization
+
 ## Review Output
 
 ### Review Comments
@@ -68,6 +86,16 @@ This document outlines how the GitHub Review Bot performs code reviews.
 - Line 42: Use parameterized queries
 - Line 87: Validate user input
 
+### Next.js Configuration
+⚠️ Missing image optimization
+- Enable image optimization in next.config.js
+- Consider using next/image component
+
+### Vercel Deployment
+✅ All deployment settings are correct
+⚠️ Missing analytics integration
+- Consider adding @vercel/analytics
+
 ### Documentation
 ❌ Missing docstrings in:
 - api/endpoints.py
@@ -77,6 +105,8 @@ This document outlines how the GitHub Review Bot performs code reviews.
 1. Add input validation
 2. Update documentation
 3. Add unit tests
+4. Enable image optimization
+5. Add Vercel analytics
 ```
 
 ### PR Status
@@ -94,4 +124,6 @@ This document outlines how the GitHub Review Bot performs code reviews.
 ### Enabled Checks
 - Each check can be enabled/disabled
 - Checks can be configured per repository type
-- Custom rules can be added 
+- Custom rules can be added
+- Language-specific settings can be configured
+- Framework-specific settings can be configured 

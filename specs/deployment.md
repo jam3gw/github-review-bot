@@ -28,27 +28,82 @@ The bot is deployed as a GitHub Action that runs in response to pull request eve
    on:
      pull_request:
        types: [opened, synchronize, reopened]
-   
+
    jobs:
      review:
        runs-on: ubuntu-latest
        steps:
          - uses: actions/checkout@v4
-         - uses: your-username/github-review-bot@main
+           with:
+             fetch-depth: 0  # Fetch all history for proper diff analysis
+
+         - name: Set up Python
+           uses: actions/setup-python@v4
+           with:
+             python-version: '3.11'
+
+         - name: Set up Node.js
+           uses: actions/setup-node@v3
+           with:
+             node-version: '20'
+             cache: 'npm'
+
+         - name: Install dependencies
+           run: |
+             python -m pip install --upgrade pip
+             pip install flake8 black bandit pyyaml
+             if [ -f "package.json" ]; then
+               npm install
+             fi
+
+         - name: Run code review
+           uses: ${{ github.repository }}@main
            with:
              github-token: ${{ secrets.GITHUB_TOKEN }}
+           env:
+             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+             CONFIG_PATH: .github/bot-config.yml
    ```
 
 2. **Configure Bot Settings**
    Create `.github/bot-config.yml`:
    ```yaml
-   review_type: default
-   strictness: medium
-   checks:
-     style: true
+   # Required: Repository type
+   type: default  # Options: default, ai_agent, api, frontend
+
+   # Required: Review strictness level
+   strictness: medium  # Options: low, medium, high
+
+   # Optional: Custom rules
+   rules:
+     code_style: true
      security: true
+     documentation: true
      tests: true
-     docs: true
+     performance: true
+
+   # Optional: Language-specific settings
+   python:
+     use_black: true
+     use_flake8: true
+     use_bandit: true
+
+   javascript:
+     use_eslint: true
+     use_prettier: true
+     use_typescript: true
+
+   # Optional: Next.js specific settings
+   nextjs:
+     check_app_directory: true
+     check_image_optimization: true
+     check_metadata: true
+
+   # Optional: Vercel specific settings
+   vercel:
+     check_vercel_json: true
+     check_environment_vars: true
+     check_build_settings: true
    ```
 
 ### Organization Setup
@@ -77,10 +132,35 @@ The bot is deployed as a GitHub Action that runs in response to pull request eve
        runs-on: ubuntu-latest
        steps:
          - uses: actions/checkout@v4
-         - uses: org-name/github-review-bot@main
+           with:
+             fetch-depth: 0
+
+         - name: Set up Python
+           uses: actions/setup-python@v4
+           with:
+             python-version: '3.11'
+
+         - name: Set up Node.js
+           uses: actions/setup-node@v3
+           with:
+             node-version: '20'
+             cache: 'npm'
+
+         - name: Install dependencies
+           run: |
+             python -m pip install --upgrade pip
+             pip install flake8 black bandit pyyaml
+             if [ -f "package.json" ]; then
+               npm install
+             fi
+
+         - name: Run code review
+           uses: org-name/github-review-bot@main
            with:
              github-token: ${{ secrets.GITHUB_TOKEN }}
              config-path: ${{ inputs.config_path }}
+           env:
+             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
    ```
 
 2. **Enable Action in Organization**
@@ -119,17 +199,6 @@ The bot is deployed as a GitHub Action that runs in response to pull request eve
      review:
        uses: org-name/github-review-bot/.github/workflows/review.yml@main
        secrets: inherit
-   ```
-
-   Both options only require the `.github/bot-config.yml` in each repository for customization:
-   ```yaml
-   review_type: default
-   strictness: medium
-   checks:
-     style: true
-     security: true
-     tests: true
-     docs: true
    ```
 
 ## Action Configuration

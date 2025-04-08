@@ -46,6 +46,25 @@ javascript:
     - "@typescript-eslint/no-explicit-any"
     - "no-console"
 
+nextjs:
+  # Next.js specific checks
+  check_app_directory: true
+  check_image_optimization: true
+  check_metadata: true
+  check_swc_minify: true
+  recommended_dependencies:
+    - "@vercel/analytics"
+    - "next-themes"
+
+vercel:
+  # Vercel deployment checks
+  check_vercel_json: true
+  check_environment_vars: true
+  check_build_settings: true
+  check_deployment_files: true
+  recommended_dependencies:
+    - "@vercel/cli"
+
 # Optional: AI Agent specific settings
 ai_agent:
   # Model requirements
@@ -66,6 +85,15 @@ frontend:
   require_typescript: true
   require_tests: true
   require_storybook: false
+  nextjs:
+    # Next.js specific requirements
+    require_app_directory: true
+    require_image_optimization: true
+    require_metadata: true
+  vercel:
+    # Vercel specific requirements
+    require_vercel_json: true
+    require_analytics: true
 
 # Optional: Custom messages
 messages:

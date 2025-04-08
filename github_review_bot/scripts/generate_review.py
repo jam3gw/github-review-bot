@@ -6,6 +6,7 @@ Script to generate a review summary from analysis results.
 import os
 import json
 from pathlib import Path
+from typing import Dict, Any
 
 def load_analysis_results():
     """Load all analysis results from JSON files."""
@@ -78,7 +79,13 @@ def generate_summary_markdown(results, config):
     
     return "\n".join(summary)
 
-def main():
+def generate_review() -> str:
+    """
+    Generate a review summary from analysis results.
+    
+    Returns:
+        str: The generated review summary in markdown format.
+    """
     # Load configuration
     with open('bot_config.json', 'r') as f:
         config = json.load(f)
@@ -86,8 +93,12 @@ def main():
     # Load analysis results
     results = load_analysis_results()
     
-    # Generate summary
-    summary = generate_summary_markdown(results, config)
+    # Generate and return summary
+    return generate_summary_markdown(results, config)
+
+def main():
+    # Generate review
+    summary = generate_review()
     
     # Save summary to file
     with open('review_summary.md', 'w') as f:

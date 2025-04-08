@@ -1,0 +1,198 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ ---
+description: Function Interface Standards
+globs: *.py
+---
+# Function Interface Standards
+
+Standards for maintaining consistent function interfaces and catching interface mismatches early.
+
+<rule>
+name: function_interface_consistency
+description: Ensures function interfaces are consistent across the codebase and properly tested
+filters:
+  # Match any Python files
+  - type: file_extension
+    pattern: "\\.py$"
+  # Match function definitions and imports
+  - type: content
+    pattern: "def\\s+[a-zA-Z_][a-zA-Z0-9_]*\\s*\\(|from\\s+.*\\s+import"
+
+actions:
+  - type: suggest
+    message: |
+      When defining or modifying function interfaces:
+
+      1. Always create interface tests first:
+         ```python
+         # Bad: No interface test
+         def process_data(data):
+             return data.transform()
+         
+         # Good: Interface test exists
+         def test_process_data_interface():
+             """Test the interface of process_data function."""
+             # Test required arguments
+             with pytest.raises(TypeError):
+                 process_data()  # Missing required argument
+             
+             # Test argument types
+             with pytest.raises(TypeError):
+                 process_data(123)  # Wrong type
+             
+             # Test return type
+             result = process_data(pd.DataFrame())
+             assert isinstance(result, pd.DataFrame)
+         ```
+
+      2. Document interface contracts explicitly:
+         ```python
+         # Bad: Unclear interface
+         def analyze_code(data):
+             return process(data)
+         
+         # Good: Clear interface contract
+         def analyze_code(data: Dict[str, Any]) -> AnalysisResult:
+             """
+             Analyze code and return results.
+             
+             Args:
+                 data: Dictionary containing:
+                     - code: str, the code to analyze
+                     - config: Dict[str, Any], analysis configuration
+             
+             Returns:
+                 AnalysisResult with fields:
+                     - issues: List[Issue]
+                     - score: float
+                     - recommendations: List[str]
+             
+             Raises:
+                 ValueError: If data is missing required fields
+                 TypeError: If data contains invalid types
+             """
+             return process(data)
+         ```
+
+      3. Verify interface consistency across imports:
+         ```python
+         # Bad: No import verification
+         from .scripts.analyze import analyze_code
+         
+         # Good: Import with interface verification
+         from .scripts.analyze import analyze_code
+         
+         def verify_analyze_code_interface():
+             """Verify analyze_code maintains its expected interface."""
+             sig = inspect.signature(analyze_code)
+             
+             # Verify parameters
+             assert 'data' in sig.parameters
+             assert sig.parameters['data'].annotation == Dict[str, Any]
+             
+             # Verify return type
+             assert sig.return_annotation == AnalysisResult
+         ```
+
+      4. Use interface adapters for changes:
+         ```python
+         # Bad: Direct interface change
+         def generate_review(results):  # Changed interface
+             return process(results)
+         
+         # Good: Use adapter pattern
+         def generate_review() -> str:  # Original interface
+             """Generate review without arguments."""
+             return _generate_review_impl(load_results())
+         
+         def _generate_review_impl(results: AnalysisResults) -> str:
+             """Implementation with new interface."""
+             return process(results)
+         ```
+
+      5. Automated interface testing:
+         ```python
+         # In conftest.py or similar
+         import pytest
+         import inspect
+         from typing import get_type_hints
+         
+         @pytest.fixture(autouse=True)
+         def verify_interfaces():
+             """Automatically verify function interfaces match their usage."""
+             def verify(module):
+                 for name, func in inspect.getmembers(module, inspect.isfunction):
+                     # Get actual signature
+                     sig = inspect.signature(func)
+                     hints = get_type_hints(func)
+                     
+                     # Verify against expected interface
+                     verify_interface(name, sig, hints)
+             
+             # Run for all relevant modules
+             verify(your_module)
+         ```
+
+examples:
+  - input: |
+      # Bad: Inconsistent interfaces
+      # In module.py
+      def process_data(data: dict) -> list:
+          return [item for item in data.values()]
+      
+      # In main.py
+      from .module import process_data
+      result = process_data()  # TypeError!
+      
+      # Good: Consistent interfaces with verification
+      # In module.py
+      def process_data(data: Dict[str, Any]) -> List[Any]:
+          """
+          Process dictionary data into a list.
+          
+          Args:
+              data: Dictionary to process
+              
+          Returns:
+              List of processed values
+              
+          Raises:
+              TypeError: If data is not a dictionary
+          """
+          if not isinstance(data, dict):
+              raise TypeError("data must be a dictionary")
+          return [item for item in data.values()]
+      
+      # In test_module.py
+      def test_process_data_interface():
+          """Verify process_data interface."""
+          with pytest.raises(TypeError):
+              process_data()  # Catches missing argument
+          
+          with pytest.raises(TypeError):
+              process_data([])  # Catches wrong type
+          
+          result = process_data({"a": 1})
+          assert isinstance(result, list)
+      
+      # In main.py
+      from .module import process_data
+      
+      def verify_interfaces():
+          """Verify all imported interfaces."""
+          sig = inspect.signature(process_data)
+          assert list(sig.parameters) == ["data"]
+          assert sig.return_annotation == List[Any]
+      
+      verify_interfaces()  # Run at import time
+      result = process_data({"a": 1})  # Works correctly
+    output: "Correctly implemented interface consistency"
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

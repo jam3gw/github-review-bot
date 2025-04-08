@@ -10,6 +10,7 @@ from .scripts.load_config import load_config
 from .scripts.run_analysis import run_analysis
 from .scripts.generate_review import generate_review
 from .scripts.post_comments import post_comments
+import json
 
 def main():
     """Main function that runs the review bot."""
@@ -52,7 +53,7 @@ def main():
     analysis_results = run_analysis(pr, config)
     
     # Generate review content
-    review_body, review_action = generate_review(analysis_results)
+    review_body, review_action = generate_review(analysis_results, config)
     
     # Post review
     pr.create_review(

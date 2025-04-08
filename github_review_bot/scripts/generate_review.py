@@ -89,7 +89,7 @@ def generate_summary_markdown(results: Dict[str, Any], config: Dict[str, Any]) -
     
     return "\n".join(summary)
 
-def generate_review(analysis_results: Dict[str, Any]) -> Tuple[str, str]:
+def generate_review(analysis_results: Dict[str, Any], config: Dict[str, Any]) -> Tuple[str, str]:
     """
     Generate a review summary from analysis results.
     
@@ -98,6 +98,7 @@ def generate_review(analysis_results: Dict[str, Any]) -> Tuple[str, str]:
             - passed: bool indicating if all checks passed
             - issues: list of found issues
             - stats: dict of analysis statistics
+        config: Dictionary containing the bot configuration
             
     Returns:
         Tuple[str, str] containing:
@@ -109,10 +110,8 @@ def generate_review(analysis_results: Dict[str, Any]) -> Tuple[str, str]:
     """
     if not isinstance(analysis_results, dict):
         raise TypeError(f"analysis_results must be a dictionary, got {type(analysis_results)}")
-    
-    # Load configuration
-    with open('bot_config.json', 'r') as f:
-        config = json.load(f)
+    if not isinstance(config, dict):
+        raise TypeError(f"config must be a dictionary, got {type(config)}")
     
     # Generate summary markdown
     review_body = generate_summary_markdown(analysis_results, config)

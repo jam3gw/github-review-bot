@@ -54,7 +54,10 @@ def verify_interfaces():
     # Verify generate_review interface
     verify_interface(
         generate_review.generate_review,
-        {'analysis_results': Dict[str, Any]},
+        {
+            'analysis_results': Dict[str, Any],
+            'config': Dict[str, Any]
+        },
         Tuple[str, str]
     )
     

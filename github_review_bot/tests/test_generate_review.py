@@ -20,15 +20,36 @@ def setup_config():
     if os.path.exists(dst):
         os.remove(dst)
 
-def test_generate_review_interface():
+@pytest.fixture
+def mock_config() -> Dict[str, Any]:
+    """Provide a mock configuration for testing."""
+    return {
+        "repo_type": "default",
+        "review_strictness": "medium",
+        "enabled_checks": {
+            "code_style": True,
+            "security": True,
+            "performance": True,
+            "test_coverage": True,
+            "documentation": True
+        }
+    }
+
+def test_generate_review_interface(mock_config):
     """Test the interface of generate_review function."""
-    # Test missing required argument
+    # Test missing required arguments
     with pytest.raises(TypeError):
         generate_review()
     
-    # Test wrong argument type
     with pytest.raises(TypeError):
-        generate_review("not a dict")
+        generate_review({"passed": True})  # Missing config
+    
+    # Test wrong argument types
+    with pytest.raises(TypeError):
+        generate_review("not a dict", mock_config)
+    
+    with pytest.raises(TypeError):
+        generate_review({"passed": True}, "not a dict")
     
     # Test correct usage
     mock_results = {
@@ -36,7 +57,7 @@ def test_generate_review_interface():
         'issues': [],
         'stats': {}
     }
-    result = generate_review(mock_results)
+    result = generate_review(mock_results, mock_config)
     
     # Verify return type
     assert isinstance(result, tuple)
@@ -46,7 +67,7 @@ def test_generate_review_interface():
     assert isinstance(review_action, str)
     assert review_action in ('approve', 'request_changes')
 
-def test_generate_review_functionality():
+def test_generate_review_functionality(mock_config):
     """Test the actual functionality of generate_review."""
     # Test passing case
     passing_results = {
@@ -54,7 +75,7 @@ def test_generate_review_functionality():
         'issues': [],
         'stats': {}
     }
-    review_body, review_action = generate_review(passing_results)
+    review_body, review_action = generate_review(passing_results, mock_config)
     assert "✅ All automated checks passed" in review_body
     assert review_action == 'approve'
     
@@ -64,6 +85,6 @@ def test_generate_review_functionality():
         'issues': [{'tool': 'flake8', 'output': 'E501 line too long'}],
         'stats': {}
     }
-    review_body, review_action = generate_review(failing_results)
+    review_body, review_action = generate_review(failing_results, mock_config)
     assert "⚠️ Some issues were found" in review_body
     assert review_action == 'request_changes' 

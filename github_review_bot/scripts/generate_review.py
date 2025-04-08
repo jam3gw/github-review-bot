@@ -6,7 +6,7 @@ Script to generate a review summary from analysis results.
 import os
 import json
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 def load_analysis_results():
     """Load all analysis results from JSON files."""
@@ -79,22 +79,32 @@ def generate_summary_markdown(results, config):
     
     return "\n".join(summary)
 
-def generate_review() -> str:
+def generate_review(analysis_results: Dict[str, Any]) -> Tuple[str, str]:
     """
     Generate a review summary from analysis results.
     
+    Args:
+        analysis_results: Dictionary containing analysis results with keys:
+            - passed: bool indicating if all checks passed
+            - issues: list of found issues
+            - stats: dict of analysis statistics
+    
     Returns:
-        str: The generated review summary in markdown format.
+        Tuple[str, str] containing:
+            - review_body: The generated review summary in markdown format
+            - review_action: The suggested action ('approve' or 'request_changes')
     """
     # Load configuration
     with open('bot_config.json', 'r') as f:
         config = json.load(f)
     
-    # Load analysis results
-    results = load_analysis_results()
+    # Generate summary markdown
+    review_body = generate_summary_markdown(analysis_results, config)
     
-    # Generate and return summary
-    return generate_summary_markdown(results, config)
+    # Determine review action based on analysis results
+    review_action = 'approve' if analysis_results.get('passed', False) else 'request_changes'
+    
+    return review_body, review_action
 
 def main():
     # Generate review

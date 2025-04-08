@@ -7,11 +7,12 @@ import os
 import sys
 import yaml
 import json
+from typing import Dict, Any
 
 CONFIG_PATH = ".github/bot-config.yml"
 
 # Default configuration
-DEFAULT_CONFIG = {
+DEFAULT_CONFIG: Dict[str, Any] = {
     "repo_type": "default",
     "review_strictness": "medium",
     "enabled_checks": {
@@ -39,11 +40,15 @@ DEFAULT_CONFIG = {
     }
 }
 
-def load_config(config_path=CONFIG_PATH):
-    """Load repository configuration from YAML file.
+def load_config(config_path: str = CONFIG_PATH) -> Dict[str, Any]:
+    """
+    Load repository configuration from YAML file.
     
     Args:
         config_path: Path to the configuration file. Defaults to CONFIG_PATH.
+        
+    Returns:
+        Dictionary containing the configuration with default values merged with user settings
     """
     config = DEFAULT_CONFIG.copy()
     
@@ -69,8 +74,13 @@ def load_config(config_path=CONFIG_PATH):
     
     return config
 
-def set_github_actions_output(config):
-    """Set GitHub Actions outputs from the configuration."""
+def set_github_actions_output(config: Dict[str, Any]) -> None:
+    """
+    Set GitHub Actions outputs from the configuration.
+    
+    Args:
+        config: The configuration dictionary to output
+    """
     with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
         f.write(f"repo_type={config['repo_type']}\n")
         f.write(f"review_strictness={config['review_strictness']}\n")

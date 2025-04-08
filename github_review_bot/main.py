@@ -6,6 +6,10 @@ import os
 import sys
 from github import Github
 import yaml
+from .scripts.load_config import load_config
+from .scripts.run_analysis import run_analysis
+from .scripts.generate_review import generate_review
+from .scripts.post_comments import post_comments
 
 def main():
     """Main function that runs the review bot."""
@@ -38,17 +42,31 @@ def main():
     repo = g.get_repo(repo_name)
     pr = repo.get_pull(pr_number)
     
-    # TODO: Add actual code review checks here
-    # For now, we'll just approve if we got this far
     print("GitHub Review Bot running...")
     print(f"Using config from: {config_path}")
+
+    # Load configuration
+    config = load_config(config_path)
     
-    # Submit approval review
+    # Run analysis
+    analysis_results = run_analysis(pr, config)
+    
+    # Generate review content
+    review_body, review_action = generate_review(analysis_results)
+    
+    # Post review
     pr.create_review(
-        body="✅ Automated review passed. All checks completed successfully.",
-        event="APPROVE"
+        body=review_body,
+        event=review_action  # Will be "APPROVE" or "REQUEST_CHANGES"
     )
-    print("Review submitted successfully!")
+    
+    # Post detailed comments if any
+    post_comments(pr, analysis_results)
+    
+    print("Review completed successfully!")
+    
+    # Exit with status code based on review action
+    sys.exit(0 if review_action == "APPROVE" else 1)
 
 if __name__ == "__main__":
     main() 

@@ -39,13 +39,17 @@ DEFAULT_CONFIG = {
     }
 }
 
-def load_config():
-    """Load repository configuration from YAML file."""
+def load_config(config_path=CONFIG_PATH):
+    """Load repository configuration from YAML file.
+    
+    Args:
+        config_path: Path to the configuration file. Defaults to CONFIG_PATH.
+    """
     config = DEFAULT_CONFIG.copy()
     
     try:
-        if os.path.exists(CONFIG_PATH):
-            with open(CONFIG_PATH, 'r') as f:
+        if os.path.exists(config_path):
+            with open(config_path, 'r') as f:
                 user_config = yaml.safe_load(f)
                 
             # Update config with user settings
@@ -58,7 +62,7 @@ def load_config():
                         # Replace top-level values
                         config[key] = value
         else:
-            print(f"Configuration file not found at {CONFIG_PATH}, using defaults.")
+            print(f"Configuration file not found at {config_path}, using defaults.")
     except Exception as e:
         print(f"Error loading configuration: {e}")
         print("Using default configuration.")

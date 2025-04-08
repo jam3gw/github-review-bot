@@ -14,16 +14,7 @@ from typing import Dict, Any, Tuple
 # Import our new checkers
 from .check_nextjs import check_nextjs
 from .check_vercel import check_vercel
-
-def load_config() -> Dict[str, Any]:
-    """Load the bot configuration from .github/bot-config.yml."""
-    config_path = Path('.github/bot-config.yml')
-    if not config_path.exists():
-        print("Error: Configuration file not found")
-        sys.exit(1)
-    
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
+from .load_config import load_config
 
 def run_python_analysis():
     """Run Python code analysis tools."""

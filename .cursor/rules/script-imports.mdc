@@ -1,0 +1,85 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ ---
+description: Script Import Standards
+globs: *.py
+---
+# Script Import Standards
+
+Standards for importing functions from the scripts directory to ensure proper function imports.
+
+<rule>
+name: script_import_validation
+description: Ensures functions imported from scripts are properly defined and callable
+filters:
+  # Match Python files that import from scripts
+  - type: file_extension
+    pattern: "\\.py$"
+  - type: content
+    pattern: "from\\s+\\.scripts\\s+import"
+
+actions:
+  - type: suggest
+    conditions:
+      - pattern: "from\\s+\\.scripts\\s+import\\s+([^\\n]+)"
+        message: "Verify that imported names match actual function definitions in scripts"
+    message: |
+      When importing from scripts:
+
+      1. Import specific functions, not modules:
+         ```python
+         # Bad:
+         from .scripts import load_config  # if load_config is a module
+         
+         # Good:
+         from .scripts.load_config import load_config  # importing the actual function
+         ```
+
+      2. Verify function existence and signature:
+         ```python
+         # Bad:
+         from .scripts import non_existent_function
+         
+         # Good:
+         from .scripts.module import existing_function
+         ```
+
+      3. Use explicit imports:
+         ```python
+         # Bad:
+         from .scripts import *
+         
+         # Good:
+         from .scripts.module import function1, function2
+         ```
+
+  - type: reject
+    conditions:
+      - pattern: "from\\s+\\.scripts\\s+import\\s+\\*"
+        message: "Wildcard imports are not allowed from scripts directory"
+      - pattern: "import\\s+scripts\\."
+        message: "Use relative imports (from .scripts) for local script modules"
+
+examples:
+  - input: |
+      # Bad: Importing module instead of function
+      from .scripts import load_config
+      
+      # Good: Importing specific function
+      from .scripts.load_config import load_config
+      
+      # Bad: Wildcard import
+      from .scripts import *
+      
+      # Good: Multiple specific imports
+      from .scripts.config import load_config
+      from .scripts.analysis import run_analysis
+    output: "Correctly implemented script imports"
+
+metadata:
+  priority: high
+  version: 1.0
+</rule>

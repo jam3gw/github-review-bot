@@ -6,7 +6,10 @@ import os
 import sys
 from github import Github
 import yaml
-from .scripts import load_config, run_analysis, generate_review, post_comments
+from .scripts.load_config import load_config
+from .scripts.run_analysis import run_analysis
+from .scripts.generate_review import generate_review
+from .scripts.post_comments import post_comments
 
 def main():
     """Main function that runs the review bot."""

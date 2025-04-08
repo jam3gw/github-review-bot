@@ -179,7 +179,10 @@ def run_analysis(pr, config) -> Dict[str, Any]:
         config: The bot configuration dictionary
     
     Returns:
-        Dict containing analysis results
+        Dict containing analysis results with keys:
+        - passed: bool indicating if all checks passed
+        - issues: list of found issues
+        - stats: dict of analysis statistics
     """
     print(f"Running analysis on PR #{pr.number}...")
     results = {

@@ -23,30 +23,38 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install dependencies and package
+        run: |
+          uv pip install -e .
+
       - name: Load repository configuration
         run: |
-          python .github/scripts/load-config-script.py
+          python -m github_review_bot.scripts.load_config
         id: config
 
       - name: Parse review preference
         run: |
-          python .github/scripts/parse_review_preference.py
+          python -m github_review_bot.scripts.parse_review_preference
         id: review_pref
 
       - name: Run code analysis
         run: |
-          python .github/scripts/run_analysis.py
+          python -m github_review_bot.scripts.run_analysis
         id: analysis
 
       - name: Generate review
         run: |
-          python .github/scripts/generate_review.py
+          python -m github_review_bot.scripts.generate_review
         id: review
 
       - name: Post review comments
         if: steps.review_pref.outputs.review_type == 'bot+human'
         run: |
-          python .github/scripts/post_comments.py
+          python -m github_review_bot.scripts.post_comments
 
       - name: Auto-approve PR
         if: steps.review_pref.outputs.review_type == 'bot-only' && steps.analysis.outputs.all_checks_passed == 'true'

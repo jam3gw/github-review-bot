@@ -5,6 +5,7 @@ Pytest configuration and fixtures for automated interface testing.
 import inspect
 from typing import get_type_hints, Any, Dict, List, Optional, Union, Tuple, Literal
 import pytest
+from github import PullRequest
 from github_review_bot.scripts import (
     load_config,
     generate_review,
@@ -71,7 +72,10 @@ def verify_interfaces():
     # Verify post_comments interface
     verify_interface(
         post_comments.post_comments,
-        {'summary': str},
+        {
+            'pr': PullRequest,
+            'analysis_results': Dict[str, Any]
+        },
         bool
     )
     

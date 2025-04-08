@@ -3,7 +3,7 @@ Pytest configuration and fixtures for automated interface testing.
 """
 
 import inspect
-from typing import get_type_hints, Any, Dict, List, Optional, Union
+from typing import get_type_hints, Any, Dict, List, Optional, Union, Tuple, Literal
 import pytest
 from github_review_bot.scripts import (
     load_config,
@@ -55,7 +55,7 @@ def verify_interfaces():
     verify_interface(
         generate_review.generate_review,
         {'analysis_results': Dict[str, Any]},
-        tuple[str, str]
+        Tuple[str, str]
     )
     
     # Verify run_analysis interface
@@ -90,5 +90,5 @@ def verify_interfaces():
     verify_interface(
         parse_review_preference.parse_review_preference,
         {'description': str},
-        str
+        Literal["bot-only", "bot+human"]
     ) 

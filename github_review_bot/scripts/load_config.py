@@ -49,7 +49,13 @@ def load_config(config_path: str = CONFIG_PATH) -> Dict[str, Any]:
         
     Returns:
         Dictionary containing the configuration with default values merged with user settings
+        
+    Raises:
+        TypeError: If config_path is not a string
     """
+    if not isinstance(config_path, str):
+        raise TypeError(f"config_path must be a string, got {type(config_path)}")
+        
     config = DEFAULT_CONFIG.copy()
     
     try:

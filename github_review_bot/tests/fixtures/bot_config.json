@@ -1,0 +1,27 @@
+{
+  "repo_type": "default",
+  "review_strictness": "medium",
+  "enabled_checks": {
+    "code_style": true,
+    "security": true,
+    "performance": true,
+    "test_coverage": true,
+    "documentation": true
+  },
+  "ai_checks": {
+    "prompt_engineering": false,
+    "model_versioning": false,
+    "response_validation": false
+  },
+  "api_checks": {
+    "openapi_validation": false,
+    "error_handling": false,
+    "rate_limiting": false,
+    "authentication": false
+  },
+  "data_privacy": {
+    "pii_scan": true,
+    "gdpr_compliance": true,
+    "ccpa_compliance": true
+  }
+} 

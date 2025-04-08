@@ -17,7 +17,13 @@ def post_comments(summary: str) -> bool:
         
     Returns:
         bool: True if comments were posted successfully, False otherwise
+        
+    Raises:
+        TypeError: If summary is not a string
     """
+    if not isinstance(summary, str):
+        raise TypeError(f"summary must be a string, got {type(summary)}")
+        
     # Get environment variables
     token = os.environ.get('GITHUB_TOKEN')
     repo_name = os.environ.get('GITHUB_REPOSITORY')

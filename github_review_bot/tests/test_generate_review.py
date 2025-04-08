@@ -2,9 +2,23 @@
 Tests for generate_review.py script.
 """
 
+import os
 import pytest
+import shutil
 from typing import Dict, Any, Tuple
 from github_review_bot.scripts.generate_review import generate_review
+
+@pytest.fixture(autouse=True)
+def setup_config():
+    """Setup test config before each test."""
+    # Copy mock config to expected location
+    src = "github_review_bot/tests/fixtures/bot_config.json"
+    dst = "bot_config.json"
+    shutil.copy(src, dst)
+    yield
+    # Clean up after test
+    if os.path.exists(dst):
+        os.remove(dst)
 
 def test_generate_review_interface():
     """Test the interface of generate_review function."""

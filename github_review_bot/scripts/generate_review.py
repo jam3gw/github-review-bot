@@ -24,54 +24,64 @@ def load_analysis_results():
     
     return results
 
-def generate_summary_markdown(results, config):
+def generate_summary_markdown(results: Dict[str, Any], config: Dict[str, Any]) -> str:
     """Generate a markdown summary of the review."""
+    if not isinstance(results, dict):
+        raise TypeError(f"results must be a dictionary, got {type(results)}")
+    if not isinstance(config, dict):
+        raise TypeError(f"config must be a dictionary, got {type(config)}")
+        
     summary = ["# Code Review Summary\n"]
     
     # Add repository info
     summary.append(f"## Repository Information")
-    summary.append(f"- Type: {config['repo_type']}")
-    summary.append(f"- Review Strictness: {config['review_strictness']}\n")
+    summary.append(f"- Type: {config.get('repo_type', 'default')}")
+    summary.append(f"- Review Strictness: {config.get('review_strictness', 'medium')}\n")
+    
+    # Add analysis results
+    has_issues = False
+    
+    # Add issues from test case format
+    if 'issues' in results:
+        has_issues = bool(results['issues'])
+        for issue in results['issues']:
+            tool = issue.get('tool', '')
+            output = issue.get('output', '')
+            if tool and output:
+                summary.append(f"## {tool.title()} Issues")
+                summary.append("```")
+                summary.append(str(output))
+                summary.append("```")
     
     # Add Python analysis results
     if 'python' in results:
         summary.append("## Python Analysis")
-        if results['python']['flake8']:
-            summary.append("### Flake8 Issues")
-            summary.append("```")
-            summary.append(results['python']['flake8'])
-            summary.append("```")
-        
-        if results['python']['black']:
-            summary.append("### Black Formatting Issues")
-            summary.append("```")
-            summary.append(results['python']['black'])
-            summary.append("```")
-        
-        if results['python']['bandit']:
-            summary.append("### Security Issues (Bandit)")
-            summary.append("```")
-            summary.append(results['python']['bandit'])
-            summary.append("```")
+        python_results = results['python']
+        if isinstance(python_results, dict):
+            for tool, output in python_results.items():
+                if output:
+                    has_issues = True
+                    summary.append(f"### {tool.title()} Issues")
+                    summary.append("```")
+                    summary.append(str(output))
+                    summary.append("```")
     
     # Add JavaScript analysis results
     if 'javascript' in results:
         summary.append("## JavaScript/TypeScript Analysis")
-        if results['javascript']['eslint']:
-            summary.append("### ESLint Issues")
-            summary.append("```")
-            summary.append(results['javascript']['eslint'])
-            summary.append("```")
-        
-        if results['javascript']['typescript']:
-            summary.append("### TypeScript Type Checking Issues")
-            summary.append("```")
-            summary.append(results['javascript']['typescript'])
-            summary.append("```")
+        js_results = results['javascript']
+        if isinstance(js_results, dict):
+            for tool, output in js_results.items():
+                if output:
+                    has_issues = True
+                    summary.append(f"### {tool.title()} Issues")
+                    summary.append("```")
+                    summary.append(str(output))
+                    summary.append("```")
     
     # Add recommendations
     summary.append("\n## Recommendations")
-    if not any(results.values()):
+    if not has_issues:
         summary.append("✅ All automated checks passed successfully!")
     else:
         summary.append("⚠️ Some issues were found during the automated review.")
@@ -88,12 +98,18 @@ def generate_review(analysis_results: Dict[str, Any]) -> Tuple[str, str]:
             - passed: bool indicating if all checks passed
             - issues: list of found issues
             - stats: dict of analysis statistics
-    
+            
     Returns:
         Tuple[str, str] containing:
             - review_body: The generated review summary in markdown format
             - review_action: The suggested action ('approve' or 'request_changes')
+            
+    Raises:
+        TypeError: If analysis_results is not a dictionary
     """
+    if not isinstance(analysis_results, dict):
+        raise TypeError(f"analysis_results must be a dictionary, got {type(analysis_results)}")
+    
     # Load configuration
     with open('bot_config.json', 'r') as f:
         config = json.load(f)

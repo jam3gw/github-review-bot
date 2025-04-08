@@ -10,6 +10,8 @@ import subprocess
 import yaml
 from pathlib import Path
 from typing import Dict, Any, Tuple
+from github import PullRequest
+from unittest.mock import Mock
 
 # Import our new checkers
 from .check_nextjs import check_nextjs
@@ -183,7 +185,16 @@ def run_analysis(pr, config) -> Dict[str, Any]:
         - passed: bool indicating if all checks passed
         - issues: list of found issues
         - stats: dict of analysis statistics
+        
+    Raises:
+        TypeError: If pr is not a PullRequest object or config is not a dictionary
     """
+    # Type checking
+    if not hasattr(pr, 'number') or not hasattr(pr, 'get_files'):
+        raise TypeError(f"pr must be a PullRequest object with number and get_files attributes, got {type(pr)}")
+    if not isinstance(config, dict):
+        raise TypeError(f"config must be a dictionary, got {type(config)}")
+    
     print(f"Running analysis on PR #{pr.number}...")
     results = {
         'passed': True,

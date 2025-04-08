@@ -5,7 +5,7 @@ Vercel deployment checks for the GitHub Review Bot.
 
 import os
 import json
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from pathlib import Path
 
 class VercelChecker:
@@ -141,8 +141,20 @@ class VercelChecker:
         self.check_deployment_files()
         return self.issues
 
-def check_vercel(repo_path: str) -> List[Dict]:
-    """Main function to run Vercel checks."""
+def check_vercel(repo_path: str) -> List[Dict[str, Any]]:
+    """
+    Main function to run Vercel deployment checks.
+    
+    Args:
+        repo_path: Path to the repository root
+        
+    Returns:
+        List of dictionaries containing check results with keys:
+        - type: str ('error', 'warning', or 'info')
+        - message: str describing the issue
+        - file: Optional[str] path to relevant file
+        - line: Optional[int] line number
+    """
     checker = VercelChecker(repo_path)
     return checker.run_checks()
 

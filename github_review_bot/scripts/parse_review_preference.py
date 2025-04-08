@@ -6,10 +6,19 @@ Script to parse the review preference from a pull request.
 import os
 import sys
 import re
+from typing import Literal
 from github import Github
 
-def parse_pr_description(description):
-    """Parse PR description to determine review type."""
+def parse_review_preference(description: str) -> Literal["bot-only", "bot+human"]:
+    """
+    Parse PR description to determine review type.
+    
+    Args:
+        description: The pull request description text
+        
+    Returns:
+        Either "bot-only" or "bot+human" based on the PR description
+    """
     # Check for bot-only review checkbox
     bot_only_pattern = r'\[x\]\s*Bot\s*review\s*only'
     if re.search(bot_only_pattern, description, re.IGNORECASE):
@@ -48,7 +57,7 @@ def main():
     pr = repo.get_pull(int(pr_number))
     
     # Parse review preference
-    review_type = parse_pr_description(pr.body)
+    review_type = parse_review_preference(pr.body)
     
     # Set GitHub Actions output
     with open(os.environ['GITHUB_OUTPUT'], 'a') as f:

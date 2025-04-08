@@ -5,7 +5,7 @@ Next.js specific checks for the GitHub Review Bot.
 
 import os
 import json
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from pathlib import Path
 
 class NextJSChecker:
@@ -126,8 +126,20 @@ class NextJSChecker:
         self.check_package_json()
         return self.issues
 
-def check_nextjs(repo_path: str) -> List[Dict]:
-    """Main function to run Next.js checks."""
+def check_nextjs(repo_path: str) -> List[Dict[str, Any]]:
+    """
+    Main function to run Next.js checks.
+    
+    Args:
+        repo_path: Path to the repository root
+        
+    Returns:
+        List of dictionaries containing check results with keys:
+        - type: str ('error', 'warning', or 'info')
+        - message: str describing the issue
+        - file: Optional[str] path to relevant file
+        - line: Optional[int] line number
+    """
     checker = NextJSChecker(repo_path)
     return checker.run_checks()
 
